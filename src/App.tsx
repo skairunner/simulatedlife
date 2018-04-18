@@ -70,6 +70,7 @@ class App extends React.Component<object, IAppState> {
 
       const agent = {
         fam: state.families[famnum],
+        food: 30,
         goal: new Vec2(),
         heading: 0,
         key: i,
@@ -80,6 +81,7 @@ class App extends React.Component<object, IAppState> {
       state.agents.push(agent);
       state.agentdict.set(state.uidcount, agent);
     }
+    console.log(state.families);
 
     for (let i = 0; i < 10; i++) {
       state.foods.push(makeNewFood(i));
@@ -95,12 +97,17 @@ class App extends React.Component<object, IAppState> {
       const newstate = {...oldstate};
       newstate.tick += 1;
       for (const agent of newstate.agents) {
+        // Reduce food if it's a second
+        if (newstate.tick % this.framerate === 0) {
+          agent.food -= 1;
+        }
         // if within range of food, eat it.
         let goalset = false;
         for (const food of newstate.foods) {
           if (food.pos.distance(agent.pos) <= food.rad) {
             // within distance!
             food.num -= 1;
+            agent.food += 1;
             agent.goal = agent.pos;
             goalset = true;
           }
