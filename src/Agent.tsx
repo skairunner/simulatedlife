@@ -1,5 +1,5 @@
-import * as d3 from 'd3-interpolate';
-import * as d3 from 'd3-scale-chromatic';
+import {interpolateLab} from 'd3-interpolate';
+import {schemeCategory10} from 'd3-scale-chromatic';
 import * as React from 'react';
 import Vec2 from 'vec2';
 import Family from './Family';
@@ -21,11 +21,11 @@ export function Agent (props: IAgentProps) {
   return (
   <g className="Agent">
       <circle key={props.key}
-              fill={d3.interpolateLab}
+              fill={interpolateLab("#000", "#FFF")(props.food > 100 ? 1 : props.food / 100)}
               cx={props.pos.x}
               cy={props.pos.y}
               r="5"
-              stroke={d3.schemeCategory10[props.fam.uid % 10]}
+              stroke={schemeCategory10[props.fam.uid % 10]}
               strokeWidth="2"/>
       <text>{}</text>
   </g>)
