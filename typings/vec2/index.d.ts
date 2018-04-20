@@ -29,6 +29,7 @@ declare module 'vec2' {
         multiply(x: number, y: number, returnnew?: boolean): Vec2;
         multiply(x: Vec2, returnnew?: boolean): Vec2;
         normalize(returnnew?: boolean): Vec2;
+        rotate(radians: number, inverse?: boolean, returnnew?: boolean): Vec2;
         subtract(x: IVec2Constructor, returnnew?: boolean): Vec2;
         subtract(x: number[], returnnew?: boolean): Vec2;
         subtract(x: number, y: number, returnnew?: boolean): Vec2;

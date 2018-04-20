@@ -167,6 +167,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   const topgoal = agent.goalstack[agent.goalstack.length - 1];
   switch (topgoal.g) {
     case Goals.None:
+      vector.add(agent.vel.rotate(Math.PI / 2, false, true));
       if (agent.food < 50) {
         agent.goalstack.pop();
       }
@@ -206,7 +207,8 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
       if (topgoal.info.target) {
         if (topgoal.info.target instanceof DatedCoord) {
           // if close enough, pop.
-          if (topgoal.info.target.pos.distance(agent.pos) < topgoal.info.radius!) {
+          const epsilon = topgoal.info.radius ? topgoal.info.radius : 2;
+          if (topgoal.info.target.pos.distance(agent.pos) < epsilon) {
             agent.goalstack.pop();
             break;
           }
@@ -264,6 +266,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
           }
         } else {
           // Search for food.
+          topgoal.info.target = "AFood";
           agent.goalstack = agent.goalstack.concat(ExpandGoals(topgoal, agent));
         }
       } else {
@@ -350,6 +353,6 @@ export function Agent (props: IAgentProps) {
         r="5"
         stroke={linecolor}
         strokeWidth="2"/>
-      <text y="4">{text}</text>
+      <text y="4" fill={props.food > 75 ? "black" : "white"}>{text}</text>
   </g>)
 }
