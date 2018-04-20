@@ -51,6 +51,7 @@ export enum Goals {
   DiscoverFood,
   Goto,
   EatFood,
+  VerifyFood,
   LocateKin,
   Broadcast,
   Play
@@ -72,6 +73,10 @@ export function ExpandGoals(prev: IGoalState, agent: IAgentProps): IGoalState[] 
       } else {
         throw new Error(`Target ${prev.info.target} is not valid.`);
       }
+    case Goals.VerifyFood:
+      goalstack.push({g: Goals.Goto, info: {target: prev.info.target, radius: 5}, p: 0});
+      goalstack = goalstack.concat(ExpandGoals(goalstack[0], agent));
+      break;
     default:
       break;
   }
@@ -161,6 +166,11 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   // Process goals.
   const topgoal = agent.goalstack[agent.goalstack.length - 1];
   switch (topgoal.g) {
+    case Goals.None:
+      if (agent.food < 50) {
+        agent.goalstack.pop();
+      }
+      break;
     case Goals.DiscoverFood:
       const result = IsFoodKnowledgeGood(agent, tick);
       if (result) {
@@ -225,20 +235,32 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
               break;
             }
           }
+          // thisfood is right next to self.
           if (thisfood) {
             if (foodcoord.pos.distance(agent.pos) <= thisfood.rad) {
               // within distance!
               thisfood.num -= 1;
               agent.food += 1;
+            } else {
+              // Seek food again.
+              const newgoal = {
+                g: Goals.Goto,
+                info: {target: foodcoord, radius: thisfood.rad},
+                p: 0
+              };
+              agent.goalstack.push(newgoal);
+              agent.goalstack = agent.goalstack.concat(ExpandGoals(newgoal, agent));
             }
           } else {
-            // There is no such food anymore.
-            // Delete from memory
-            const index = agent.foodsources.indexOf(foodcoord);
-            agent.foodsources.splice(index);
-            // Search for new.
-            topgoal.info.target = "AFood";
-            agent.goalstack = agent.goalstack.concat(ExpandGoals(topgoal, agent));
+            // thisfood might not exist.
+            // Try to goto food again.
+            const newgoal = {
+              g: Goals.VerifyFood,
+              info: {target: foodcoord},
+              p: 0
+            };
+            agent.goalstack.push(newgoal);
+            agent.goalstack = agent.goalstack.concat(ExpandGoals(newgoal, agent));
           }
         } else {
           // Search for food.
@@ -249,7 +271,19 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
         agent.goalstack = agent.goalstack.concat(ExpandGoals(topgoal, agent));
       }
       break;
-  }
+    case Goals.VerifyFood:
+      // We should be in food range if we're here.
+      if (topgoal.info.target) {
+        const thisfood = foods.find(d => d.pos.equal((topgoal.info.target as DatedCoord).pos));
+        if (thisfood) {
+          agent.goalstack.pop();
+        } else {
+          // Delete from memory
+          removeByCoord(topgoal.info.target as DatedCoord, agent.foodsources);
+          agent.goalstack = [];
+        }
+      }
+    }
 
   // Try not to overlap
   const stayAway = new Vec2();
@@ -271,7 +305,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   agent.vel.multiply(.99); // friction
   vector.multiply(dt);
   agent.vel.add(vector);
-  agent.vel.add(stayAway);
+   agent.vel.add(stayAway);
   const len = agent.vel.lengthSquared();
   if (len > 500) {
     agent.vel.multiply(500 / len);
