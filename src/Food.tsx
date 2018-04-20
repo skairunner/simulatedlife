@@ -12,11 +12,15 @@ export interface IFoodProps {
   }
   
 export function Food(props: IFoodProps) {
-return <circle
-    className="Food"
-    cx={props.pos.x}
-    cy={props.pos.y}
-    opacity={props.num / props.maxnum}
-    r={props.rad}
-    />
+return (
+  <g className="Food" transform={`translate(${props.pos.x}, ${props.pos.y})`}>
+    <circle
+      className="innerfood"
+      opacity={Math.sqrt(props.num / props.maxnum)}
+      r={Math.sqrt(props.num)}/>
+    <circle
+      className="outerfood"
+      opacity={props.num / props.maxnum}
+      r={props.rad}/>
+  </g>)
 }

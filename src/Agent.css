@@ -1,9 +1,15 @@
-.Food {
-    fill: green;
+.Food .innerfood {
+  fill: green;
 }
 
-.Agent line {
-    stroke-width: 4px;
+.Food .outerfood {
+  stroke: darkgreen;
+  stroke-width: 1px;
+  fill: none;
+}
+
+.Agent .direction {
+  stroke-width: 4px;
 }
 
 .Agent .detection {

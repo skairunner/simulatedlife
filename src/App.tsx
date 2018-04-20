@@ -33,7 +33,7 @@ interface IAppState {
 // const TAU = Math.PI * 2;
 
 class App extends React.Component<object, IAppState> {
-  private framerate = 30;
+  private framerate = 25;
 
   constructor(props: object) {
     super(props);

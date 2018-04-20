@@ -167,7 +167,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   const topgoal = agent.goalstack[agent.goalstack.length - 1];
   switch (topgoal.g) {
     case Goals.None:
-      vector.add(agent.vel.rotate(Math.PI / 2, false, true));
+      vector.add(agent.vel.rotate(Math.PI / 2, false, true).normalize().multiply(2));
       if (agent.food < 50) {
         agent.goalstack.pop();
       }
@@ -345,7 +345,7 @@ export function Agent (props: IAgentProps) {
   return (
   <g className="Agent" transform={`translate(${props.pos.x}, ${props.pos.y})`}>
       <circle className="detection" cx="0" cy="0" r={DETECTION_RADIUS} />
-      <line x1="0" y1="0" x2={heading.x} y2={heading.y} stroke={linecolor}/>
+      <line className="direction" x1="0" y1="0" x2={heading.x} y2={heading.y} stroke={linecolor}/>
       <circle className="agent" key={props.key}
         fill={interpolateLab("#000", "#FFF")(props.food > 100 ? 1 : props.food / 100)}
         cx="0"
