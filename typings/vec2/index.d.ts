@@ -19,6 +19,9 @@ declare module 'vec2' {
         divide(x: number, y: number, returnnew?: boolean): Vec2;
         divide(x: Vec2, returnnew?: boolean): Vec2;
         dot(vec: Vec2): number;
+        equal(vec: Vec2): boolean;
+        equal(x: number[]): boolean;
+        equal(x: number, y:number): boolean;
         lengthSquared(): number;
         length(): number;
         multiply(x: number, returnnew?: boolean): Vec2;
@@ -29,6 +32,7 @@ declare module 'vec2' {
         subtract(x: IVec2Constructor, returnnew?: boolean): Vec2;
         subtract(x: number[], returnnew?: boolean): Vec2;
         subtract(x: number, y: number, returnnew?: boolean): Vec2;
+        zero(): Vec2;
         x: number;
         y: number;
     }

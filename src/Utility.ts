@@ -1,6 +1,13 @@
-// import * as Random from 'random-js';
-
+import * as Random from 'random-js';
+import Vec2 from 'vec2';
 // tslint:disable prefer-const
+
+export const rng = Random.engines.mt19937();
+rng.autoSeed();
+
+export function randomVec2(xmin: number, xmax: number, ymin: number, ymax: number, rnginst: Random.MT19937) {
+  return new Vec2(Random.real(xmin, xmax)(rng), Random.real(ymin, ymax)(rnginst));
+}
 
 type keyfunctype<T> = (d: T) => number | object | string; // accepts a type T and outputs a Comparable C
 
@@ -19,6 +26,16 @@ export function arrmin<T>(arr: T[], keyfunc?: keyfunctype<T>) {
 	return arr.reduce((a, b)=>{
 		// return the smaller object
 		return keyfunc!(a) > keyfunc!(b) ? b : a;
+	})
+}
+
+export function arrmax<T>(arr: T[], keyfunc?: keyfunctype<T>) {
+	if (keyfunc === undefined) {
+		keyfunc = d => d;
+	}
+	return arr.reduce((a, b)=>{
+		// return the smaller object
+		return keyfunc!(a) > keyfunc!(b) ? a : b;
 	})
 }
 

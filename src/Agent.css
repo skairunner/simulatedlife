@@ -1,3 +1,19 @@
 .Food {
     fill: green;
 }
+
+.Agent line {
+    stroke-width: 4px;
+}
+
+.Agent .detection {
+  fill: none;
+  stroke: red;
+  stroke-dasharray: 5px 5px;
+}
+
+.Agent text {
+  text-anchor: middle;
+  fill: white;
+  font-size: 8px;
+}
