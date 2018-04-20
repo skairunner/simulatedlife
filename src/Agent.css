@@ -5,6 +5,7 @@
 .Food .outerfood {
   stroke: darkgreen;
   stroke-width: 1px;
+  stroke-dasharray: 3px 1px;
   fill: none;
 }
 
@@ -14,9 +15,9 @@
 
 .Agent .detection {
   fill: none;
-  stroke: red;
-  stroke-dasharray: 5px 5px;
-  opacity: .3;
+  stroke: darkred;
+  stroke-dasharray: 4px 10px;
+  opacity: .2;
 }
 
 .Agent text {

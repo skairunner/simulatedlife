@@ -10,13 +10,14 @@ import {randomVec2, rng} from './Utility';
 
 import './App.css';
 
+const FOODMARGIN = 20;
 function makeNewFood(key: number): IFoodProps {
   const num = Random.integer(50, 100)(rng);
   return {
     key,
     maxnum: num,
     num,
-    pos: randomVec2(0, WIDTH, 0, HEIGHT, rng),
+    pos: randomVec2(FOODMARGIN, WIDTH - FOODMARGIN, FOODMARGIN, HEIGHT - FOODMARGIN, rng),
     rad: Random.real(Math.sqrt(num), Math.sqrt(num)*2)(rng)
   }
 }
