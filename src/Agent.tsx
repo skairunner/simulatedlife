@@ -258,7 +258,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
             // Try to goto food again.
             const newgoal = {
               g: Goals.VerifyFood,
-              info: {target: foodcoord},
+              info: {target: foodcoord, radius: DETECTION_RADIUS * .9},
               p: 0
             };
             agent.goalstack.push(newgoal);
