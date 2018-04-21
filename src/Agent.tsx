@@ -6,7 +6,7 @@ import isNumber from './is-number';
 
 import {DETECTION_RADIUS, EPSILON, HEIGHT, REPULSION, WIDTH} from './constants';
 import Family from './Family';
-import {IFoodProps} from './Food';
+import {IFoodProps, UncertainLocationDict} from './Food';
 import {arrmax, randomVec2, rng} from './Utility';
 
 import "./Agent.css";
@@ -36,7 +36,7 @@ export interface IAgentProps {
   // cautious: number; // Determines up to how long ago of datedcoords will trust.
   fam: Family;
   food: number;
-  foodsources: DatedCoord[];
+  foodsources: UncertainLocationDict<DatedCoord>;
   goal: Vec2;
   goalstack: IGoalState[]; 
   heading: number;
@@ -84,27 +84,27 @@ export function ExpandGoals(prev: IGoalState, agent: IAgentProps): IGoalState[] 
 }
 
 export function IsFoodKnowledgeGood(agent: IAgentProps, tick: number): DatedCoord | undefined {
-  if (agent.foodsources.length === 0) {
+  if (agent.foodsources.size === 0) {
     return;
   }
   // Find most recent
-  const coord = arrmax(agent.foodsources, d => d.t);
+  const coord = arrmax(Array.from(agent.foodsources.dict.values()), d => d.t);
   if (tick - coord.t < 1000) {
     return coord;
   }
   return;
 }
 
-interface IHasPos {
-  pos: Vec2;
-}
+// interface IHasPos {
+//   pos: Vec2;
+// }
 
-function removeByCoord(foodpos: DatedCoord, foods: IHasPos[]) {
-  const foodindex = foods.findIndex(d => d.pos.equal(foodpos.pos));
-  if (foodindex >= 0) {
-    foods.splice(foodindex);
-  }
-}
+// function removeByCoord(foodpos: DatedCoord, foods: IHasPos[]) {
+//   const foodindex = foods.findIndex(d => d.pos.equal(foodpos.pos));
+//   if (foodindex >= 0) {
+//     foods.splice(foodindex);
+//   }
+// }
 
 export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods: IFoodProps[], tick: number, framerate: number) {
   const dt = 1/framerate;
@@ -121,8 +121,8 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   for (const food of foods) {
     if (food.pos.distance(agent.pos) < DETECTION_RADIUS) {
       // check it is not already in the list
-      if (agent.foodsources.findIndex(d => d.pos.equal(food.pos)) < 0) {
-        agent.foodsources.push(new DatedCoord(food.pos, tick));
+      if (!agent.foodsources.has(food.pos)) {
+        agent.foodsources.set(food.pos, new DatedCoord(food.pos, tick));
       }
     }
   }
@@ -184,7 +184,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
             prev.info.radius = food.rad;
           } else {
             // food doesn't exist somehow
-            removeByCoord(result, agent.foodsources);
+            agent.foodsources.delete(result.pos);
           }
         }
         if (agent.goalstack[0].g === Goals.EatFood) {
@@ -282,7 +282,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
           agent.goalstack.pop();
         } else {
           // Delete from memory
-          removeByCoord(topgoal.info.target as DatedCoord, agent.foodsources);
+          agent.foodsources.delete((topgoal.info.target as DatedCoord).pos);
           agent.goalstack = [];
         }
       }

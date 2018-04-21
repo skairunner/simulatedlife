@@ -2,10 +2,10 @@ import * as Random from "random-js";
 import * as React from 'react';
 import Vec2 from 'vec2';
 
-import {Agent, CalculateAgent, IAgentProps} from './Agent';
+import {Agent, CalculateAgent, DatedCoord, IAgentProps} from './Agent';
 import {HEIGHT, WIDTH} from './constants';
 import Family from './Family';
-import {Food, IFoodProps} from './Food';
+import {Food, IFoodProps, UncertainLocationDict} from './Food';
 import {randomVec2, rng} from './Utility';
 
 import './App.css';
@@ -62,7 +62,7 @@ class App extends React.Component<object, IAppState> {
       const agent = {
         fam: state.families[famnum],
         food: 30,
-        foodsources: [],
+        foodsources: new UncertainLocationDict<DatedCoord>(),
         goal: new Vec2(),
         goalstack: [],
         heading: 0,
