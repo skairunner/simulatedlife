@@ -2,11 +2,12 @@ import * as Random from "random-js";
 import * as React from 'react';
 import Vec2 from 'vec2';
 
-import {Agent, CalculateAgent, DatedCoord, IAgentProps} from './Agent';
-import {HEIGHT, WIDTH} from './constants';
-import Family from './Family';
-import {Food, IFoodProps, UncertainLocationDict} from './Food';
-import {randomVec2, rng} from './Utility';
+import { Agent, CalculateAgent, IAgentProps } from './Agent';
+import { HEIGHT, WIDTH } from './constants';
+import DatedCoord from './DatedCoord';
+import { Family } from './Family';
+import { Food, IFoodProps, UncertainLocationDict } from './Food';
+import { randomVec2, rng } from './Utility';
 
 import './App.css';
 
@@ -68,6 +69,7 @@ class App extends React.Component<object, IAppState> {
         heading: 0,
         key: i,
         pos: new Vec2(x, y),
+        selfish: Random.real(.3, 1)(rng),
         uid: state.uidcount,
         vel: new Vec2()
       };
@@ -91,6 +93,8 @@ class App extends React.Component<object, IAppState> {
       newstate.tick += 1;
       for (const family of newstate.families) {
         family.calccom(newstate.agentdict);
+        family.recvmsgs = family.sentmsgs;
+        family.sentmsgs = [];
       }
 
       for (const agent of newstate.agents) {

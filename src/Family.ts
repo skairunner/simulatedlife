@@ -5,18 +5,38 @@ interface IHasPos {
   pos: Vec2;
 }
 
+interface IFamilyMessage {
+  msgtype: FamilyMsgType;
+  pos: Vec2;
+}
+
+export enum FamilyMsgType {
+  None,
+  FoodFound,
+  FoodGone,
+  Member
+}
+
 // Describe a group of agents that work together.
-export default class Family {
+export class Family {
   public members: number[]; // array of uids of members
   public votes: string[]; // current votes for action
   public uid: number;
   public com: Vec2; // center of mass for family
+  public sentmsgs: IFamilyMessage[]; // communications.
+  public recvmsgs: IFamilyMessage[]; // communications.
 
   constructor(uid: number) {
     this.members = [];
     this.votes = [];
     this.uid = uid;
+    this.sentmsgs = [];
+    this.recvmsgs = [];
     this.com = new Vec2();
+  }
+
+  public send(msg: IFamilyMessage) {
+    this.sentmsgs.push(msg);
   }
 
   public calccom(lookup: Map<number, IHasPos>) {

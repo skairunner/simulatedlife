@@ -5,20 +5,12 @@ import Vec2 from 'vec2';
 import isNumber from './is-number';
 
 import {DETECTION_RADIUS, EPSILON, HEIGHT, REPULSION, WIDTH} from './constants';
-import Family from './Family';
+import DatedCoord from './DatedCoord';
+import {Family, FamilyMsgType} from './Family';
 import {IFoodProps, UncertainLocationDict} from './Food';
 import {arrmax, randomVec2, rng} from './Utility';
 
 import "./Agent.css";
-
-export class DatedCoord {
-  public pos: Vec2;
-  public t: number; // time of observation in ticks.
-  constructor(pos: Vec2, t: number) {
-    this.pos = pos;
-    this.t = t;
-  }
-}
 
 interface IGoalState {
   g: Goals;
@@ -42,6 +34,7 @@ export interface IAgentProps {
   heading: number;
   key: number;
   pos: Vec2;
+  selfish: number; // [0, 1] % of keeping info to self.
   uid: number;
   vel: Vec2;
 }
@@ -123,6 +116,22 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
       // check it is not already in the list
       if (!agent.foodsources.has(food.pos)) {
         agent.foodsources.set(food.pos, new DatedCoord(food.pos, tick));
+        agent.fam.send({msgtype: FamilyMsgType.FoodFound, pos: food.pos});
+      }
+    }
+  }
+
+  // Add/remove family-reported foods to/from list
+  for (const msg of agent.fam.recvmsgs) {
+    if (msg.msgtype === FamilyMsgType.FoodFound) {
+      if (!agent.foodsources.has(msg.pos)) {
+        agent.foodsources.set(msg.pos, new DatedCoord(msg.pos, tick));
+      }
+    } else if (msg.msgtype === FamilyMsgType.FoodGone) {
+      if (agent.foodsources.has(msg.pos)) {
+        agent.foodsources.delete(msg.pos);
+        // quick and dirty hack. Reset priorities to force re-eval
+        agent.goalstack = [];
       }
     }
   }
@@ -282,7 +291,9 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
           agent.goalstack.pop();
         } else {
           // Delete from memory
-          agent.foodsources.delete((topgoal.info.target as DatedCoord).pos);
+          const pos = (topgoal.info.target as DatedCoord).pos;
+          agent.foodsources.delete(pos);
+          agent.fam.send({msgtype: FamilyMsgType.FoodGone, pos});
           agent.goalstack = [];
         }
       }
