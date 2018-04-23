@@ -26,6 +26,7 @@ interface IGoalStatePayload {
 
 export interface IAgentProps {
   // cautious: number; // Determines up to how long ago of datedcoords will trust.
+  acel: Vec2;
   fam: Family;
   food: number;
   foodsources: UncertainLocationDict<DatedCoord>;
@@ -316,6 +317,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   }
 
   // Next, seek the target.
+  agent.acel = new Vec2(vector);
   agent.vel.multiply(.99); // friction
   vector.multiply(dt);
   agent.vel.add(vector);
@@ -341,6 +343,11 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   }
 }
 
+const FIXCOLORS = false;
+function getLineColor(uid: number) {
+  return FIXCOLORS ? "#000" : schemeCategory10[uid % 10];
+}
+
 export function Agent (props: IAgentProps) {
   let heading;
   if (props.vel.lengthSquared() !== 0) {
@@ -348,7 +355,7 @@ export function Agent (props: IAgentProps) {
   } else {
     heading = new Vec2(10,  0);
   }
-  const linecolor = schemeCategory10[props.fam.uid % 10];
+  const linecolor = getLineColor(props.fam.uid);
   let text = "";
   if (props.goalstack.length !== 0) {
     text = props.goalstack[props.goalstack.length - 1].g.toString();
@@ -365,5 +372,7 @@ export function Agent (props: IAgentProps) {
         stroke={linecolor}
         strokeWidth="2"/>
       <text y="4" fill={props.food > 75 ? "black" : "white"}>{text}</text>
+      <line className="accel" x1="0" y1="0" x2={props.acel.x} y2={props.acel.y}/>
+      <line className="velocity" x1="0" y1="0" x2={props.vel.x} y2={props.vel.y}/>
   </g>)
 }

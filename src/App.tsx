@@ -61,6 +61,7 @@ class App extends React.Component<object, IAppState> {
       state.families[famnum].members.push(i);
 
       const agent = {
+        acel: new Vec2(),
         fam: state.families[famnum],
         food: 30,
         foodsources: new UncertainLocationDict<DatedCoord>(),
