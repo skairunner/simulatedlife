@@ -4,7 +4,7 @@ import * as React from 'react';
 import Vec2 from 'vec2';
 import isNumber from './is-number';
 
-import {DETECTION_RADIUS, EPSILON, HEIGHT, REPULSION, WIDTH} from './constants';
+import {DETECTION_RADIUS, EPSILON, HAS_COLOR, HEIGHT, IS_DEBUG, REPULSION, WIDTH} from './constants';
 import DatedCoord from './DatedCoord';
 import {Family, FamilyMsgType} from './Family';
 import {IFoodProps, UncertainLocationDict} from './Food';
@@ -343,9 +343,8 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   }
 }
 
-const FIXCOLORS = false;
 function getLineColor(uid: number) {
-  return FIXCOLORS ? "#000" : schemeCategory10[uid % 10];
+  return (!HAS_COLOR) ? "#000" : schemeCategory10[uid % 10];
 }
 
 export function Agent (props: IAgentProps) {
@@ -372,7 +371,7 @@ export function Agent (props: IAgentProps) {
         stroke={linecolor}
         strokeWidth="2"/>
       <text y="4" fill={props.food > 75 ? "black" : "white"}>{text}</text>
-      <line className="accel" x1="0" y1="0" x2={props.acel.x} y2={props.acel.y}/>
-      <line className="velocity" x1="0" y1="0" x2={props.vel.x} y2={props.vel.y}/>
+      <line opacity={IS_DEBUG ? 1 : 0} className="accel" x1="0" y1="0" x2={props.acel.x} y2={props.acel.y}/>
+      <line opacity={IS_DEBUG ? 1 : 0} className="velocity" x1="0" y1="0" x2={props.vel.x} y2={props.vel.y}/>
   </g>)
 }

@@ -1,9 +1,10 @@
 import * as Random from "random-js";
+import Checkbox from 'rc-checkbox';
 import * as React from 'react';
 import Vec2 from 'vec2';
 
 import { Agent, CalculateAgent, IAgentProps } from './Agent';
-import { HEIGHT, WIDTH } from './constants';
+import { HAS_COLOR, HEIGHT, IS_DEBUG, ToggleColors, ToggleDebug, WIDTH } from './constants';
 import DatedCoord from './DatedCoord';
 import { Family } from './Family';
 import { Food, IFoodProps, UncertainLocationDict } from './Food';
@@ -120,6 +121,8 @@ class App extends React.Component<object, IAppState> {
           {this.state.foods.map((val) => <Food {...val} key = {val.key} />)}
           {this.state.agents.map((val) => <Agent {...val} key={val.key} />)}
         </svg>
+        <div><Checkbox checked={IS_DEBUG ? 1 : 0} onChange={ToggleDebug}/> <span>Debug</span></div>
+        <div><Checkbox checked={HAS_COLOR ? 0 : 1} onChange={ToggleColors}/> <span>Decolor</span></div>
       </div>
     );
   }

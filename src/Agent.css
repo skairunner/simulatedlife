@@ -26,13 +26,11 @@
 }
 
 .Agent .velocity {
-  opacity: 0;
   stroke: green;
   stroke-width: 1px;
 }
 
 .Agent .accel { 
-  opacity: 0;
   stroke: red;
   stroke-width: 1px;
 }

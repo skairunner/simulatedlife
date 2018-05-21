@@ -9,6 +9,7 @@
     "d3-scale-chromatic": "^1.2.0",
     "lerp": "^1.0.3",
     "random-js": "^1.0.8",
+    "rc-checkbox": "^2.1.5",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-scripts-ts": "2.15.1",
