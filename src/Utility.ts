@@ -9,6 +9,10 @@ export function randomVec2(xmin: number, xmax: number, ymin: number, ymax: numbe
   return new Vec2(Random.real(xmin, xmax)(rng), Random.real(ymin, ymax)(rnginst));
 }
 
+export function randfloat(min: number, max: number) {
+  return Random.real(min, max)(rng);
+}
+
 type keyfunctype<T> = (d: T) => number | object | string; // accepts a type T and outputs a Comparable C
 
 export function mapGetOrDie<K, V>(key: K, map: Map<K, V>): V {

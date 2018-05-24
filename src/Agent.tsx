@@ -4,11 +4,11 @@ import * as React from 'react';
 import Vec2 from 'vec2';
 import isNumber from './is-number';
 
-import {DETECTION_RADIUS, EPSILON, HAS_COLOR, HEIGHT, IS_DEBUG, REPULSION, WIDTH} from './constants';
+import {DETECTION_RADIUS, EPSILON, HAS_COLOR, HEIGHT, IS_DEBUG, REPULSION, SLOWING_RADIUS, WIDTH} from './constants';
 import DatedCoord from './DatedCoord';
 import {Family, FamilyMsgType} from './Family';
 import {IFoodProps, UncertainLocationDict} from './Food';
-import {arrmax, randomVec2, rng} from './Utility';
+import {arrmax, randfloat, randomVec2, rng} from './Utility';
 
 import "./Agent.css";
 
@@ -25,8 +25,8 @@ interface IGoalStatePayload {
 }
 
 export interface IAgentProps {
-  // cautious: number; // Determines up to how long ago of datedcoords will trust.
   acel: Vec2;
+  // cautious: number; // Determines up to how long ago of datedcoords will trust.
   fam: Family;
   food: number;
   foodsources: UncertainLocationDict<DatedCoord>;
@@ -35,7 +35,7 @@ export interface IAgentProps {
   heading: number;
   key: number;
   pos: Vec2;
-  selfish: number; // [0, 1] % of keeping info to self.
+  selfish: number; // [0, 1] probability of keeping info to self.
   uid: number;
   vel: Vec2;
 }
@@ -117,7 +117,10 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
       // check it is not already in the list
       if (!agent.foodsources.has(food.pos)) {
         agent.foodsources.set(food.pos, new DatedCoord(food.pos, tick));
-        agent.fam.send({msgtype: FamilyMsgType.FoodFound, pos: food.pos});
+        // depending on selfishness, may keep info to self
+        if (agent.selfish <= randfloat(0, 1)) {
+          agent.fam.send({msgtype: FamilyMsgType.FoodFound, pos: food.pos});
+        }
       }
     }
   }
@@ -126,7 +129,10 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   for (const msg of agent.fam.recvmsgs) {
     if (msg.msgtype === FamilyMsgType.FoodFound) {
       if (!agent.foodsources.has(msg.pos)) {
-        agent.foodsources.set(msg.pos, new DatedCoord(msg.pos, tick));
+        // more selfish = more likely to disbelieve others.
+        if (agent.selfish <= randfloat(0, 1)) {
+          agent.foodsources.set(msg.pos, new DatedCoord(msg.pos, tick));
+        }
       }
     } else if (msg.msgtype === FamilyMsgType.FoodGone) {
       if (agent.foodsources.has(msg.pos)) {
@@ -222,7 +228,13 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
             agent.goalstack.pop();
             break;
           }
-          vector.add(topgoal.info.target.pos.subtract(agent.pos, true));
+          const force = topgoal.info.target.pos.subtract(agent.pos, true);
+          // Have a slowing area to decelerate on arrival.
+          const d2 = force.lengthSquared();
+          if (d2 < SLOWING_RADIUS) {
+            force.multiply(d2 / SLOWING_RADIUS);
+          }
+          vector.add(force);
         } else if (topgoal.info.target === "AFood") {
           agent.goalstack = agent.goalstack.concat(ExpandGoals(topgoal, agent));
         } else {
@@ -321,7 +333,7 @@ export function CalculateAgent(agent: IAgentProps, agents: IAgentProps[], foods:
   agent.vel.multiply(.99); // friction
   vector.multiply(dt);
   agent.vel.add(vector);
-   agent.vel.add(stayAway);
+  agent.vel.add(stayAway);
   const len = agent.vel.lengthSquared();
   if (len > 500) {
     agent.vel.multiply(500 / len);

@@ -8,7 +8,7 @@ import { HAS_COLOR, HEIGHT, IS_DEBUG, ToggleColors, ToggleDebug, WIDTH } from '.
 import DatedCoord from './DatedCoord';
 import { Family } from './Family';
 import { Food, IFoodProps, UncertainLocationDict } from './Food';
-import { randomVec2, rng } from './Utility';
+import { randfloat, randomVec2, rng } from './Utility';
 
 import './App.css';
 
@@ -20,7 +20,7 @@ function makeNewFood(key: number): IFoodProps {
     maxnum: num,
     num,
     pos: randomVec2(FOODMARGIN, WIDTH - FOODMARGIN, FOODMARGIN, HEIGHT - FOODMARGIN, rng),
-    rad: Random.real(Math.sqrt(num), Math.sqrt(num)*2)(rng)
+    rad: randfloat(Math.sqrt(num), Math.sqrt(num)*2)
   }
 }
 
@@ -71,7 +71,7 @@ class App extends React.Component<object, IAppState> {
         heading: 0,
         key: i,
         pos: new Vec2(x, y),
-        selfish: Random.real(.3, 1)(rng),
+        selfish: randfloat(0, .7),
         uid: state.uidcount,
         vel: new Vec2()
       };
